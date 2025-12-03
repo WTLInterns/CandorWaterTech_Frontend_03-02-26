@@ -1074,7 +1074,7 @@ export default function PdfInvoicePage() {
           <div className="rounded-lg bg-slate-800 p-4 shadow border border-slate-700 space-y-3">
             <h2 className="text-sm font-semibold text-gray-800">Billed By (Company)</h2>
             <div className="mb-2">
-              <label className="block text-xs font-medium text-gray-600 mb-1">
+              <label className="block text-xs font-medium text-white-600 mb-1">
                 Agent (optional)
               </label>
               <select
@@ -1103,7 +1103,7 @@ export default function PdfInvoicePage() {
               </select>
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">
+              <label className="block text-xs font-medium text-white-600 mb-1">
                 Company Name
               </label>
               <input
@@ -1114,7 +1114,7 @@ export default function PdfInvoicePage() {
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">
+              <label className="block text-xs font-medium text-white-600 mb-1">
                 Company Address
               </label>
               <input
@@ -1126,7 +1126,7 @@ export default function PdfInvoicePage() {
             </div>
             <div className="grid gap-2 md:grid-cols-2">
               <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">GSTIN</label>
+                <label className="block text-xs font-medium text-white-600 mb-1">GSTIN</label>
                 <input
                   className="w-full rounded border border-slate-600 px-3 py-2 text-sm bg-slate-700 text-slate-100 placeholder:text-slate-300"
                   placeholder="Company GSTIN"
@@ -1135,7 +1135,7 @@ export default function PdfInvoicePage() {
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Mobile</label>
+                <label className="block text-xs font-medium text-white-600 mb-1">Mobile</label>
                 <input
                   className="w-full rounded border border-slate-600 px-3 py-2 text-sm bg-slate-700 text-slate-100 placeholder:text-slate-300"
                   placeholder="Company mobile number"
@@ -1145,7 +1145,7 @@ export default function PdfInvoicePage() {
               </div>
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Email</label>
+              <label className="block text-xs font-medium text-white-600 mb-1">Email</label>
               <input
                 className="w-full rounded border border-slate-600 px-3 py-2 text-sm bg-slate-700 text-slate-100 placeholder:text-slate-300"
                 placeholder="Company email address"
@@ -1153,7 +1153,7 @@ export default function PdfInvoicePage() {
                 onChange={(e) => setCompanyEmail(e.target.value)}
               />
             </div>
-            <div className="grid gap-2 md:grid-cols-2 text-xs text-gray-600">
+            <div className="grid gap-2 md:grid-cols-2 text-xs text-white-600">
               <div>
                 <label className="block mb-1 font-medium">Company Logo</label>
                 <input
@@ -1192,7 +1192,7 @@ export default function PdfInvoicePage() {
           <div className="rounded-lg bg-slate-800 p-4 shadow border border-slate-700 space-y-3">
             <h2 className="text-sm font-semibold text-gray-800">Billed To (Customer)</h2>
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Customer Name</label>
+              <label className="block text-xs font-medium text-white-600 mb-1">Customer Name</label>
               <input
                 className="w-full rounded border border-slate-600 px-3 py-2 text-sm bg-slate-700 text-slate-100 placeholder:text-slate-300"
                 placeholder="Enter customer name"
@@ -1202,7 +1202,7 @@ export default function PdfInvoicePage() {
             </div>
             <div className="grid gap-2 md:grid-cols-2">
               <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Mobile</label>
+                <label className="block text-xs font-medium text-white-600 mb-1">Mobile</label>
                 <input
                   className="w-full rounded border border-slate-600 px-3 py-2 text-sm bg-slate-700 text-slate-100 placeholder:text-slate-300"
                   placeholder="Customer mobile number"
@@ -1218,7 +1218,7 @@ export default function PdfInvoicePage() {
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Address</label>
+              <label className="block text-xs font-medium text-white-600 mb-1">Address</label>
               <input
                 className="w-full rounded border border-slate-600 px-3 py-2 text-sm bg-slate-700 text-slate-100 placeholder:text-slate-300"
                 placeholder="Customer billing address"
@@ -1228,7 +1228,7 @@ export default function PdfInvoicePage() {
             </div>
             <div className="grid gap-2 md:grid-cols-2">
               <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">GSTIN</label>
+                <label className="block text-xs font-medium text-white-600 mb-1">GSTIN</label>
                 <input
                   className="w-full rounded border border-slate-600 px-3 py-2 text-sm bg-slate-700 text-slate-100 placeholder:text-slate-300"
                   placeholder="Customer GSTIN"
@@ -1237,7 +1237,7 @@ export default function PdfInvoicePage() {
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Email</label>
+                <label className="block text-xs font-medium text-white-600 mb-1">Email</label>
                 <input
                   className="w-full rounded border border-slate-600 px-3 py-2 text-sm bg-slate-700 text-slate-100 placeholder:text-slate-300"
                   placeholder="Customer email address"

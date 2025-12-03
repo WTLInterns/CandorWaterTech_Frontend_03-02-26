@@ -10,6 +10,7 @@ interface Product {
   name: string;
   price: number;
   description?: string;
+  imageUrl?: string;
 }
 
 interface ProductFormState {
@@ -28,6 +29,8 @@ export default function ProductsPage() {
     description: "",
   });
 
+  const [imageFile, setImageFile] = useState<File | null>(null);
+
   const queryClient = useQueryClient();
 
   const [deleteTarget, setDeleteTarget] = useState<Product | null>(null);
@@ -43,9 +46,10 @@ export default function ProductsPage() {
   const createMutation = useMutation({
     mutationFn: async (payload: { name: string; price: number; description: string }) => {
       const res = await api.post("/products", payload);
-      return res.data;
+      return res.data as Product;
     },
-    onSuccess: () => {
+    onSuccess: async (saved) => {
+      await uploadImageIfNeeded(saved.id);
       queryClient.invalidateQueries({ queryKey: ["products"] });
       closeModal();
       toast.success("Product created");
@@ -59,9 +63,10 @@ export default function ProductsPage() {
     mutationFn: async (payload: { id: number; name: string; price: number; description: string }) => {
       const { id, ...body } = payload;
       const res = await api.put(`/products/${id}`, body);
-      return res.data;
+      return res.data as Product;
     },
-    onSuccess: () => {
+    onSuccess: async (saved) => {
+      await uploadImageIfNeeded(saved.id);
       queryClient.invalidateQueries({ queryKey: ["products"] });
       closeModal();
       toast.success("Product updated");
@@ -92,6 +97,7 @@ export default function ProductsPage() {
   function openCreateModal() {
     setEditingProduct(null);
     setForm({ name: "", price: "", description: "" });
+    setImageFile(null);
     setIsModalOpen(true);
   }
 
@@ -102,11 +108,13 @@ export default function ProductsPage() {
       price: product.price.toString(),
       description: product.description ?? "",
     });
+    setImageFile(null);
     setIsModalOpen(true);
   }
 
   function closeModal() {
     setIsModalOpen(false);
+    setImageFile(null);
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -124,6 +132,19 @@ export default function ProductsPage() {
       updateMutation.mutate({ id: editingProduct.id, ...payload });
     } else {
       createMutation.mutate(payload);
+    }
+  }
+
+  async function uploadImageIfNeeded(productId: number) {
+    if (!imageFile) return;
+    try {
+      const formData = new FormData();
+      formData.append("image", imageFile);
+      await api.post(`/products/${productId}/image`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+    } catch (e) {
+      toast.error("Failed to upload product image");
     }
   }
 
@@ -168,6 +189,7 @@ export default function ProductsPage() {
                 <thead className="bg-slate-900/80 text-left text-[11px] font-medium text-slate-400">
                   <tr>
                     <th className="px-3 py-2">ID</th>
+                    <th className="px-3 py-2">Image</th>
                     <th className="px-3 py-2">Name</th>
                     <th className="px-3 py-2">Price</th>
                     <th className="px-3 py-2">Description</th>
@@ -178,6 +200,20 @@ export default function ProductsPage() {
                   {data.map((product) => (
                     <tr key={product.id} className="hover:bg-slate-900/70">
                       <td className="px-3 py-2 whitespace-nowrap text-slate-400">{product.id}</td>
+                      <td className="px-3 py-2 whitespace-nowrap">
+                        {product.imageUrl ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={`${
+                              process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8080/api/v1"
+                            }${product.imageUrl}`}
+                            alt={product.name}
+                            className="h-9 w-9 rounded object-cover border border-slate-700 bg-slate-800"
+                          />
+                        ) : (
+                          <span className="text-[10px] text-slate-500">No image</span>
+                        )}
+                      </td>
                       <td className="px-3 py-2 whitespace-nowrap">{product.name}</td>
                       <td className="px-3 py-2 whitespace-nowrap">₹ {product.price.toLocaleString()}</td>
                       <td className="px-3 py-2 max-w-xs truncate text-slate-300">
@@ -248,6 +284,31 @@ export default function ProductsPage() {
                   className="w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-1.5 outline-none focus:ring-2 focus:ring-indigo-500"
                   placeholder="Short internal description"
                 />
+              </div>
+              <div className="space-y-1">
+                <label className="block text-slate-300">Product image (optional)</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    const file = e.target.files && e.target.files[0];
+                    setImageFile(file ?? null);
+                  }}
+                  className="w-full text-xs text-slate-300 file:mr-3 file:rounded-md file:border-0 file:bg-slate-800 file:px-3 file:py-1.5 file:text-xs file:font-medium file:text-slate-100 hover:file:bg-slate-700"
+                />
+                {editingProduct?.imageUrl && !imageFile && (
+                  <div className="mt-2 flex items-center gap-2">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={`${
+                        process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8080/api/v1"
+                      }${editingProduct.imageUrl}`}
+                      alt={editingProduct.name}
+                      className="h-10 w-10 rounded object-cover border border-slate-700 bg-slate-800"
+                    />
+                    <span className="text-[11px] text-slate-400">Existing image</span>
+                  </div>
+                )}
               </div>
               <div className="flex justify-end gap-2 pt-2 text-xs">
                 <button

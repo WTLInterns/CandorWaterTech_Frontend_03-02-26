@@ -1,8 +1,10 @@
 import Layout from "@/components/Layout";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "@/lib/apiClient";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useRouter } from "next/router";
+import Modal from "@/components/Modal";
+import Input from "@/components/Input";
 
 interface Lead {
   id: string;
@@ -29,6 +31,11 @@ export default function LeadsPage() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const [selected, setSelected] = useState<Lead | null>(null);
+  const [chatOpen, setChatOpen] = useState(false);
+  const [chatLead, setChatLead] = useState<Lead | null>(null);
+  const [comments, setComments] = useState<any[]>([]);
+  const [commentLoading, setCommentLoading] = useState(false);
+  const [message, setMessage] = useState("");
 
   const { data, isLoading, isError } = useQuery<Page<Lead>>({
     queryKey: ["leads"],
@@ -62,6 +69,34 @@ export default function LeadsPage() {
       (a) => a.id === lead.assignedAgentId || String(a.employeeCode ?? a.id) === lead.assignedAgentId,
     );
     return agent?.name ?? "-";
+  }
+
+  const canSend = useMemo(() => message.trim().length > 0 && !!chatLead, [message, chatLead]);
+
+  async function openChat(lead: Lead) {
+    setChatLead(lead);
+    setChatOpen(true);
+    setCommentLoading(true);
+    try {
+      const res = await api.get(`/leads/${lead.id}/comments`);
+      setComments(res.data || []);
+    } catch (e) {
+      setComments([]);
+    } finally {
+      setCommentLoading(false);
+    }
+  }
+
+  async function sendMessage() {
+    const text = message.trim();
+    if (!text || !chatLead) return;
+    try {
+      const res = await api.post(`/leads/${chatLead.id}/comments`, { message: text, source: "ADMIN" });
+      setComments((prev) => [...prev, res.data]);
+      setMessage("");
+    } catch (e) {
+      // optional: toast in future
+    }
   }
 
   return (
@@ -104,18 +139,26 @@ export default function LeadsPage() {
                     <td className="px-4 py-2 whitespace-nowrap">{getAgentName(lead)}</td>
                     <td className="px-4 py-2 whitespace-nowrap">{lead.status ?? "-"}</td>
                     <td className="px-4 py-2 whitespace-nowrap text-right">
-                      <button
-                        className="mr-2 rounded border border-slate-500 px-2 py-1 text-xs hover:bg-slate-700"
-                        onClick={() => setSelected(lead)}
-                      >
-                        View
-                      </button>
-                      <button
-                        className="rounded border border-indigo-500 px-2 py-1 text-xs text-indigo-300 hover:bg-indigo-600/20"
-                        onClick={() => router.push(`/leads/${lead.id}`)}
-                      >
-                        Edit
-                      </button>
+                      <div className="inline-flex items-center gap-2">
+                        <button
+                          className="rounded border border-slate-500 px-2 py-1 text-xs hover:bg-slate-700"
+                          onClick={() => setSelected(lead)}
+                        >
+                          View
+                        </button>
+                        <button
+                          className="rounded border border-indigo-500 px-2 py-1 text-xs text-indigo-300 hover:bg-indigo-600/20"
+                          onClick={() => router.push(`/leads/${lead.id}`)}
+                        >
+                          Edit
+                        </button>
+                        <button
+                          className="rounded border border-emerald-500 px-2 py-1 text-xs text-emerald-300 hover:bg-emerald-600/20"
+                          onClick={() => openChat(lead)}
+                        >
+                          Chat
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -129,6 +172,99 @@ export default function LeadsPage() {
                     </td>
                   </tr>
                 )}
+
+        {/* Lead Chat Modal */}
+        <Modal
+          open={chatOpen}
+          onClose={() => {
+            setChatOpen(false);
+            setComments([]);
+            setMessage("");
+            setChatLead(null);
+          }}
+          title={chatLead ? `Conversation: ${chatLead.companyName || chatLead.id}` : "Conversation"}
+          footer={
+            <>
+              <button
+                className="rounded border border-slate-500 px-3 py-1.5 text-xs text-slate-100 hover:bg-slate-800"
+                onClick={() => {
+                  setChatOpen(false);
+                  setComments([]);
+                  setMessage("");
+                  setChatLead(null);
+                }}
+              >
+                Close
+              </button>
+              <button
+                className="rounded bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-indigo-500 disabled:opacity-60"
+                onClick={sendMessage}
+                disabled={!canSend}
+              >
+                Send
+              </button>
+            </>
+          }
+        >
+          <div className="flex flex-col h-80">
+            <div className="flex-1 overflow-y-auto space-y-3 pr-1">
+              {commentLoading ? (
+                <div className="text-sm text-slate-400">Loading messages…</div>
+              ) : comments.length === 0 ? (
+                <div className="text-sm text-slate-400">No messages yet.</div>
+              ) : (
+                comments.map((c: any) => {
+                  const source = (c.source as string | undefined)?.toUpperCase() ?? "";
+                  const isAdmin = source === "ADMIN" || !source;
+                  return (
+                    <div
+                      key={c.id}
+                      className={`flex items-start gap-2 ${isAdmin ? "justify-end" : "justify-start"}`}
+                    >
+                      {!isAdmin && (
+                        <div className="shrink-0 h-8 w-8 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs font-semibold">
+                          A
+                        </div>
+                      )}
+                      <div
+                        className={`max-w-[80%] rounded-md px-3 py-2 ${
+                          isAdmin ? "bg-indigo-600 text-white" : "bg-slate-50 text-slate-900"
+                        }`}
+                      >
+                        <div className="text-[11px] flex items-center justify-between opacity-80">
+                          <span>{isAdmin ? "Admin" : (c.agentName || "Agent")}</span>
+                          <span>
+                            {c.createdAt ? new Date(c.createdAt).toLocaleString() : ""}
+                          </span>
+                        </div>
+                        <div className="mt-1 text-sm whitespace-pre-wrap">{c.message}</div>
+                      </div>
+                      {isAdmin && (
+                        <div className="shrink-0 h-8 w-8 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-xs font-semibold">
+                          A
+                        </div>
+                      )}
+                    </div>
+                  );
+                })
+              )}
+            </div>
+            <div className="mt-3 flex items-center gap-2">
+              <Input
+                label=""
+                placeholder="Write a message…"
+                value={message}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setMessage(e.target.value)}
+                onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+                  if (e.key === "Enter" && canSend) {
+                    e.preventDefault();
+                    sendMessage();
+                  }
+                }}
+              />
+            </div>
+          </div>
+        </Modal>
               </tbody>
             </table>
           </div>

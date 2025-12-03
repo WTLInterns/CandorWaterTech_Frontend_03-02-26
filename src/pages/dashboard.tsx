@@ -175,7 +175,7 @@ export default function DashboardPage() {
       <div className="space-y-6">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h1 className="text-xl sm:text-2xl font-semibold tracking-tight">Dashboard</h1>
+            <h1 className="text-xl sm:text-2xl font-semibold tracking-tight text-slate-100">Dashboard</h1>
             <p className="mt-1 text-xs sm:text-sm text-slate-400">
               Overview of sales performance, field activity, and pipeline health.
             </p>
@@ -185,7 +185,7 @@ export default function DashboardPage() {
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-4">
             <div className="text-xs text-slate-400">Total Sales</div>
-            <div className="mt-2 text-2xl font-semibold">
+            <div className="mt-2 text-2xl font-semibold text-slate-100">
               {totalSales != null ? `₹ ${totalSales.toLocaleString()}` : "-"}
             </div>
             <div className="mt-1 text-[11px] text-slate-400">
@@ -194,21 +194,21 @@ export default function DashboardPage() {
           </div>
           <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-4">
             <div className="text-xs text-slate-400">Active Field Staff</div>
-            <div className="mt-2 text-2xl font-semibold">
+            <div className="mt-2 text-2xl font-semibold text-slate-100">
               {activeStaff != null ? activeStaff : "-"}
             </div>
             <div className="mt-1 text-[11px] text-slate-400">Total agents</div>
           </div>
           <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-4">
             <div className="text-xs text-slate-400">Total Leads</div>
-            <div className="mt-2 text-2xl font-semibold">
+            <div className="mt-2 text-2xl font-semibold text-slate-100">
               {totalLeads != null ? totalLeads : "-"}
             </div>
             <div className="mt-1 text-[11px] text-slate-400">Across all agents</div>
           </div>
           <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-4">
             <div className="text-xs text-slate-400">Completed Activities</div>
-            <div className="mt-2 text-2xl font-semibold">
+            <div className="mt-2 text-2xl font-semibold text-slate-100">
               {activities.filter((a) => a.status?.toUpperCase?.() === "COMPLETED").length}
             </div>
             <div className="mt-1 text-[11px] text-slate-400">From latest log</div>
@@ -218,7 +218,7 @@ export default function DashboardPage() {
         <div className="grid gap-4 lg:grid-cols-3">
           <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-4 lg:col-span-2">
             <div className="flex items-center justify-between mb-3">
-              <h2 className="text-sm font-medium">Sales vs Target</h2>
+              <h2 className="text-sm font-medium text-slate-100">Sales vs Target</h2>
               <span className="text-[11px] text-slate-400">Last 6 months (invoices)</span>
             </div>
             <div className="h-52 sm:h-64">
@@ -251,7 +251,7 @@ export default function DashboardPage() {
           <div className="space-y-4">
             <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-4">
               <div className="flex items-center justify-between mb-3">
-                <h2 className="text-sm font-medium">Lead Status Breakdown</h2>
+                <h2 className="text-sm font-medium text-slate-100">Lead Status Breakdown</h2>
               </div>
               <div className="h-40">
                 <ResponsiveContainer width="100%" height="100%">
@@ -270,9 +270,9 @@ export default function DashboardPage() {
 
             <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-4">
               <div className="flex items-center justify-between mb-3">
-                <h2 className="text-sm font-medium">Lead Mix</h2>
+                <h2 className="text-sm font-medium text-slate-100">Lead Mix</h2>
               </div>
-              <div className="h-40">
+              <div className="h-40 relative">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
@@ -281,22 +281,45 @@ export default function DashboardPage() {
                       nameKey="name"
                       cx="50%"
                       cy="50%"
+                      innerRadius={35}
                       outerRadius={60}
                       labelLine={false}
-                      label={({ name, percent }) => {
-                        const safePercent = typeof percent === "number" ? percent : 0;
-                        return `${name} ${(safePercent * 100).toFixed(0)}%`;
-                      }}
+                      label={false}
                     >
                       {categoryData.map((entry, index) => (
                         <Cell key={entry.name} fill={COLORS[index % COLORS.length]} />
                       ))}
                     </Pie>
                     <Tooltip
-                      contentStyle={{ backgroundColor: "#020617", border: "1px solid #1e293b", fontSize: 12 }}
+                      contentStyle={{ 
+                        backgroundColor: "#020617", 
+                        border: "1px solid #1e293b", 
+                        fontSize: 12,
+                        borderRadius: "6px"
+                      }}
                     />
                   </PieChart>
                 </ResponsiveContainer>
+                {/* Custom labels positioned outside the chart */}
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="flex flex-col items-center space-y-1">
+                    {categoryData.map((entry, index) => (
+                      <div key={entry.name} className="flex items-center space-x-2 text-xs">
+                        <div 
+                          className="w-3 h-3 rounded-full" 
+                          style={{ backgroundColor: COLORS[index % COLORS.length] }}
+                        />
+                        <span className="text-slate-300 font-medium">{entry.name}</span>
+                        <span className="text-slate-400">
+                          {entry.value > 0 
+                            ? `${((entry.value / categoryData.reduce((sum, item) => sum + item.value, 0)) * 100).toFixed(0)}%`
+                            : "0%"
+                          }
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -304,7 +327,7 @@ export default function DashboardPage() {
 
         <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-4">
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-sm font-medium">Latest Activity</h2>
+            <h2 className="text-sm font-medium text-slate-100">Latest Activity</h2>
             <span className="text-[11px] text-slate-400">Today</span>
           </div>
           <div className="overflow-x-auto">
@@ -349,12 +372,12 @@ export default function DashboardPage() {
                       : "text-sky-400";
                   return (
                     <tr key={a.id} className="hover:bg-slate-900/70">
-                      <td className="px-3 py-2 whitespace-nowrap">{a.time}</td>
-                      <td className="px-3 py-2 whitespace-nowrap">{a.agent}</td>
-                      <td className="px-3 py-2 whitespace-nowrap">
+                      <td className="px-3 py-2 whitespace-nowrap text-slate-100">{a.time}</td>
+                      <td className="px-3 py-2 whitespace-nowrap text-slate-100">{a.agent}</td>
+                      <td className="px-3 py-2 whitespace-nowrap text-slate-100">
                         {a.customer || "-"}
                       </td>
-                      <td className="px-3 py-2 max-w-xs truncate">{a.activity}</td>
+                      <td className="px-3 py-2 max-w-xs truncate text-slate-100">{a.activity}</td>
                       <td
                         className={`px-3 py-2 whitespace-nowrap text-[11px] ${colorClass}`}
                       >

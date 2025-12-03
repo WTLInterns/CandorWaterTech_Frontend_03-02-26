@@ -1,6 +1,7 @@
 import Layout from "@/components/Layout";
-import { useMemo, useState } from "react";
+import { useMemo, useState, ChangeEvent } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "next/router";
 import api from "@/lib/apiClient";
 import toast from "react-hot-toast";
 
@@ -54,6 +55,7 @@ function formatIsoDate(d: Date): string {
 }
 
 export default function AttendancePage() {
+  const router = useRouter();
   const [mode, setMode] = useState<Mode>("mark");
 
   const queryClient = useQueryClient();
@@ -66,6 +68,10 @@ export default function AttendancePage() {
   const [selectedEmployee, setSelectedEmployee] = useState<Agent | null>(null);
   const [selectedEntries, setSelectedEntries] = useState<Record<string, AttendanceStatus>>({});
   const [statusPickerFor, setStatusPickerFor] = useState<string | null>(null);
+  const [punchImage, setPunchImage] = useState<File | null>(null);
+  const [punchReason, setPunchReason] = useState("");
+  const [punchInLoading, setPunchInLoading] = useState(false);
+  const [punchOutLoading, setPunchOutLoading] = useState(false);
 
   // --- View Attendance state ---
   const [viewEmployeeName, setViewEmployeeName] = useState("");
@@ -74,6 +80,7 @@ export default function AttendancePage() {
     name: string;
     employeeCode?: number;
   } | null>(null);
+  const [checkModalOpen, setCheckModalOpen] = useState(false);
 
   const { data: agents } = useQuery<Agent[]>({
     queryKey: ["agents-all"],
@@ -199,6 +206,66 @@ export default function AttendancePage() {
 
   function clearAllSelected() {
     setSelectedEntries({});
+  }
+
+  async function handlePunchInDirect() {
+    if (!selectedEmployee) {
+      toast.error("Select an employee first");
+      return;
+    }
+    if (!punchImage) {
+      toast.error("Select an image for Punch In");
+      return;
+    }
+    try {
+      setPunchInLoading(true);
+      const fd = new FormData();
+      fd.append("agentId", selectedEmployee.id);
+      fd.append("agentName", selectedEmployee.name);
+      fd.append("workType", "FIELD");
+      if (punchReason) {
+        fd.append("reason", punchReason);
+      }
+      fd.append("image", punchImage);
+
+      await api.post("/attendance/field/punch-in", fd, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      toast.success("Punch In recorded");
+      setPunchImage(null);
+    } catch (e: any) {
+      const msg = e?.response?.data?.message || "Failed to punch in";
+      toast.error(msg);
+    } finally {
+      setPunchInLoading(false);
+    }
+  }
+
+  async function handlePunchOutDirect() {
+    if (!selectedEmployee) {
+      toast.error("Select an employee first");
+      return;
+    }
+    try {
+      setPunchOutLoading(true);
+      await api.post("/attendance/field/punch-out", {
+        agentId: selectedEmployee.id,
+        agentName: selectedEmployee.name,
+        reason: punchReason || null,
+      });
+      toast.success("Punch Out recorded");
+    } catch (e: any) {
+      const msg = e?.response?.data?.message || "Failed to punch out";
+      toast.error(msg);
+    } finally {
+      setPunchOutLoading(false);
+    }
+  }
+
+  function handlePunchImageChange(e: ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0] || null;
+    setPunchImage(file);
   }
 
   function submitAttendance() {
@@ -482,37 +549,37 @@ export default function AttendancePage() {
 
         {mode === "view" && (
           <div className="space-y-4">
-            <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-4 sm:p-5">
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <div className="flex-1 flex items-center gap-2">
-                  <div className="relative flex-1">
-                    <input
-                      value={viewEmployeeName}
-                      onChange={(e) => {
-                        setViewEmployeeName(e.target.value);
-                        setViewEmployeeFixed(null);
-                      }}
-                      placeholder="Enter Employee Full Name"
-                      className="w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-xs sm:text-sm outline-none focus:ring-2 focus:ring-indigo-500"
-                    />
-                    {viewFilteredAgents.length > 0 && !viewEmployeeFixed && (
-                      <div className="absolute z-20 mt-1 w-full rounded-md border border-slate-700 bg-slate-900 text-xs shadow-lg">
-                        {viewFilteredAgents.map((a) => (
-                          <button
-                            key={a.id}
-                            type="button"
-                            onClick={() => {
-                              setViewEmployeeFixed({ id: a.id, name: a.name, employeeCode: a.employeeCode });
-                              setViewEmployeeName(a.name);
-                            }}
-                            className="block w-full px-3 py-2 text-left text-slate-100 hover:bg-slate-800"
-                          >
-                            {a.employeeCode != null ? `${a.employeeCode} - ${a.name}` : a.name}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
+            <div className="rounded-2xl border border-slate-800 bg-slate-900/80 px-4 py-4 sm:px-6 sm:py-5">
+              <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                <div className="relative w-full lg:max-w-md">
+                  <input
+                    value={viewEmployeeName}
+                    onChange={(e) => {
+                      setViewEmployeeName(e.target.value);
+                      setViewEmployeeFixed(null);
+                    }}
+                    placeholder="Enter Employee Full Name"
+                    className="w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-xs sm:text-sm outline-none focus:ring-2 focus:ring-indigo-500"
+                  />
+                  {viewFilteredAgents.length > 0 && !viewEmployeeFixed && (
+                    <div className="absolute z-20 mt-1 w-full rounded-md border border-slate-700 bg-slate-900 text-xs shadow-lg max-h-64 overflow-y-auto">
+                      {viewFilteredAgents.map((a) => (
+                        <button
+                          key={a.id}
+                          type="button"
+                          onClick={() => {
+                            setViewEmployeeFixed({ id: a.id, name: a.name, employeeCode: a.employeeCode });
+                            setViewEmployeeName(a.name);
+                          }}
+                          className="block w-full px-3 py-2 text-left text-slate-100 hover:bg-slate-800"
+                        >
+                          {a.employeeCode != null ? `${a.employeeCode} - ${a.name}` : a.name}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <div className="flex flex-col sm:flex-row sm:flex-none gap-2">
                   <button
                     type="button"
                     onClick={() => {
@@ -521,7 +588,7 @@ export default function AttendancePage() {
                         return;
                       }
                     }}
-                    className="rounded-md bg-blue-600 px-3 py-2 text-xs sm:text-sm font-medium text-white hover:bg-blue-500"
+                    className="inline-flex items-center justify-center rounded-md bg-blue-600 px-4 py-2 text-xs sm:text-sm font-medium text-white shadow hover:bg-blue-500"
                   >
                     View Attendance
                   </button>
@@ -532,8 +599,9 @@ export default function AttendancePage() {
                         toast.error("Select an employee from the list");
                         return;
                       }
+                      setCheckModalOpen(true);
                     }}
-                    className="rounded-md bg-indigo-600 px-3 py-2 text-xs sm:text-sm font-medium text-white hover:bg-indigo-500"
+                    className="inline-flex items-center justify-center rounded-md bg-indigo-600 px-4 py-2 text-xs sm:text-sm font-medium text-white shadow hover:bg-indigo-500"
                   >
                     Check Today Attendance
                   </button>
@@ -553,7 +621,7 @@ export default function AttendancePage() {
                         employeeCode: viewEmployeeFixed.employeeCode,
                       });
                     }}
-                    className="rounded-md bg-green-600 px-3 py-2 text-xs sm:text-sm font-medium text-white hover:bg-green-500"
+                    className="inline-flex items-center justify-center rounded-md bg-green-600 px-4 py-2 text-xs sm:text-sm font-medium text-white shadow hover:bg-green-500"
                   >
                     Download All
                   </button>
@@ -614,6 +682,53 @@ export default function AttendancePage() {
                 </button>
               ))}
             </div>
+            <div className="mt-3 border-t border-slate-800 pt-3 space-y-2">
+              <div className="text-[11px] font-semibold text-slate-200">Time Management</div>
+              <div className="space-y-2">
+                <div className="space-y-1">
+                  <label className="block text-[11px] text-slate-300">Attendance Image (for Punch In)</label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handlePunchImageChange}
+                    className="block w-full text-[11px] text-slate-200 file:mr-2 file:rounded-md file:border-0 file:bg-slate-800 file:px-2 file:py-1 file:text-[11px] file:text-slate-100 hover:file:bg-slate-700"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="block text-[11px] text-slate-300">Reason (optional)</label>
+                  <select
+                    value={punchReason}
+                    onChange={(e) => setPunchReason(e.target.value)}
+                    className="w-full rounded-md border border-slate-700 bg-slate-950 px-2 py-1.5 text-[11px] outline-none focus:ring-2 focus:ring-indigo-500"
+                  >
+                    <option value="">Select reason</option>
+                    <option value="Late">Late</option>
+                    <option value="Half-day">Half-day</option>
+                    <option value="Site visit">Site visit</option>
+                    <option value="On duty">On duty</option>
+                    <option value="Work from home">Work from home</option>
+                  </select>
+                </div>
+                <div className="flex items-center justify-between gap-2 pt-1">
+                  <button
+                    type="button"
+                    onClick={handlePunchInDirect}
+                    disabled={punchInLoading}
+                    className="flex-1 rounded-md bg-emerald-600 px-2 py-1.5 text-[11px] font-semibold text-white hover:bg-emerald-500 disabled:opacity-60"
+                  >
+                    {punchInLoading ? "Punching..." : "Punch In"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handlePunchOutDirect}
+                    disabled={punchOutLoading}
+                    className="flex-1 rounded-md bg-red-600 px-2 py-1.5 text-[11px] font-semibold text-white hover:bg-red-500 disabled:opacity-60"
+                  >
+                    {punchOutLoading ? "Punching..." : "Punch Out"}
+                  </button>
+                </div>
+              </div>
+            </div>
             <button
               type="button"
               onClick={() => setStatusPickerFor(null)}
@@ -621,6 +736,65 @@ export default function AttendancePage() {
             >
               Cancel
             </button>
+          </div>
+        </div>
+      )}
+
+      {checkModalOpen && viewEmployeeFixed && (
+        <div className="fixed inset-0 z-40 flex items-center justify-center bg-slate-950/70 backdrop-blur">
+          <div className="w-full max-w-5xl rounded-xl border border-slate-800 bg-slate-900/95 p-4 sm:p-5 shadow-xl text-xs sm:text-sm">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-sm sm:text-base font-semibold text-slate-100">Check Attendance</h3>
+              <button
+                type="button"
+                onClick={() => setCheckModalOpen(false)}
+                className="px-2 py-1 text-[11px] rounded-md border border-slate-600 text-slate-200 hover:bg-slate-800"
+              >
+                Close
+              </button>
+            </div>
+            <div className="grid gap-4 md:grid-cols-[1.4fr,2fr]">
+              <div>
+                <CalendarGrid activeDate={monthDate} viewEntries={viewMap} />
+              </div>
+              <div className="rounded-xl border border-slate-800 bg-slate-950/70 overflow-hidden">
+                <div className="flex items-center justify-between px-3 py-2 border-b border-slate-800">
+                  <div>
+                    <div className="text-xs font-semibold text-slate-100">Attendance Records</div>
+                    <div className="text-[11px] text-slate-400">{viewEmployeeFixed.name}</div>
+                  </div>
+                  <span className="text-[11px] text-slate-400">{(viewData || []).length} days</span>
+                </div>
+                <div className="max-h-72 overflow-y-auto">
+                  <table className="min-w-full text-[11px] text-slate-100">
+                    <thead className="bg-slate-900/80 text-left font-semibold text-slate-300">
+                      <tr>
+                        <th className="px-3 py-2">Date</th>
+                        <th className="px-3 py-2">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-800">
+                      {(viewData || []).map((d) => (
+                        <tr key={d.date} className="hover:bg-slate-900/70">
+                          <td className="px-3 py-2 whitespace-nowrap">{d.date}</td>
+                          <td className="px-3 py-2 whitespace-nowrap">{d.status}</td>
+                        </tr>
+                      ))}
+                      {(viewData || []).length === 0 && (
+                        <tr>
+                          <td
+                            colSpan={2}
+                            className="px-3 py-4 text-center text-[11px] text-slate-400"
+                          >
+                            No attendance records for this month.
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       )}

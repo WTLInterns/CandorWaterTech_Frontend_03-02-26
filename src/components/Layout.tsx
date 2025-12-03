@@ -12,6 +12,7 @@ import {
   Settings,
   LogOut,
   Map as MapIcon,
+  ChevronDown,
 } from "lucide-react";
 import { useAuthStore } from "@/lib/authStore";
 
@@ -21,7 +22,7 @@ const navItems = [
   { href: "/products", label: "Products", icon: Package },
   { href: "/invoices", label: "Invoices", icon: FileText },
   { href: "/field-staff", label: "Field Staff", icon: UserCircle2 },
-  { href: "/attendance", label: "Attendance", icon: CalendarCheck },
+  // Attendance is rendered as a grouped submenu below
   { href: "/activities", label: "Activity", icon: FileText },
   { href: "/reports", label: "Reports", icon: BarChart3 },
   { href: "/settings", label: "Settings", icon: Settings },
@@ -31,6 +32,7 @@ const navItems = [
 export default function Layout({ children }: { children: ReactNode }) {
   const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+   const [attendanceOpen, setAttendanceOpen] = useState(true);
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
 
@@ -70,6 +72,60 @@ export default function Layout({ children }: { children: ReactNode }) {
             </Link>
           );
         })}
+
+        {/* Attendance grouped submenu */}
+        <div className="mt-2 space-y-1">
+          <button
+            type="button"
+            onClick={() => setAttendanceOpen((v) => !v)}
+            className={classNames(
+              "flex w-full items-center justify-between rounded-md px-3 py-2 text-left transition",
+              router.pathname.startsWith("/attendance")
+                ? "bg-slate-800 text-slate-50"
+                : "text-slate-300 hover:bg-slate-800 hover:text-slate-50"
+            )}
+          >
+            <span className="flex items-center gap-2">
+              <CalendarCheck className="h-4 w-4" />
+              <span>Attendance</span>
+            </span>
+            <ChevronDown
+              className={classNames(
+                "h-4 w-4 transition-transform",
+                attendanceOpen ? "rotate-180" : "rotate-0"
+              )}
+            />
+          </button>
+
+          {attendanceOpen && (
+            <div className="ml-7 space-y-1">
+              <Link
+                href="/attendance"
+                className={classNames(
+                  "flex items-center gap-2 rounded-md px-3 py-1.5 text-xs transition",
+                  router.pathname === "/attendance"
+                    ? "bg-slate-800 text-slate-50"
+                    : "text-slate-300 hover:bg-slate-800 hover:text-slate-50"
+                )}
+                onClick={() => setSidebarOpen(false)}
+              >
+                <span>Mark Attendance</span>
+              </Link>
+              <Link
+                href="/attendance/images"
+                className={classNames(
+                  "flex items-center gap-2 rounded-md px-3 py-1.5 text-xs transition",
+                  router.pathname === "/attendance/images"
+                    ? "bg-slate-800 text-slate-50"
+                    : "text-slate-300 hover:bg-slate-800 hover:text-slate-50"
+                )}
+                onClick={() => setSidebarOpen(false)}
+              >
+                <span>Check Images</span>
+              </Link>
+            </div>
+          )}
+        </div>
       </nav>
       <button
         onClick={handleLogout}
