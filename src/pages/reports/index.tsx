@@ -150,19 +150,57 @@ export default function ReportsPage() {
               <option value="ORDERS">Orders / Pipeline</option>
             </select>
             <div className="flex items-center gap-2">
-              <input
-                type="date"
-                value={from}
-                onChange={(e) => setFrom(e.target.value)}
-                className="rounded-md border border-slate-700 bg-slate-950 px-3 py-1.5 outline-none focus:ring-2 focus:ring-indigo-500"
-              />
+              <div className="relative">
+                <input
+                  type="date"
+                  value={from}
+                  onChange={(e) => setFrom(e.target.value)}
+                  className="w-full rounded-md border border-slate-700 bg-slate-950 px-3 pr-9 py-1.5 text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500"
+                />
+                <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    className="h-4 w-4 text-indigo-300"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                    <line x1="16" y1="2" x2="16" y2="6" />
+                    <line x1="8" y1="2" x2="8" y2="6" />
+                    <line x1="3" y1="10" x2="21" y2="10" />
+                  </svg>
+                </div>
+              </div>
               <span className="text-slate-400">to</span>
-              <input
-                type="date"
-                value={to}
-                onChange={(e) => setTo(e.target.value)}
-                className="rounded-md border border-slate-700 bg-slate-950 px-3 py-1.5 outline-none focus:ring-2 focus:ring-indigo-500"
-              />
+              <div className="relative">
+                <input
+                  type="date"
+                  value={to}
+                  onChange={(e) => setTo(e.target.value)}
+                  className="w-full rounded-md border border-slate-700 bg-slate-950 px-3 pr-9 py-1.5 text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500"
+                />
+                <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    className="h-4 w-4 text-indigo-300"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                    <line x1="16" y1="2" x2="16" y2="6" />
+                    <line x1="8" y1="2" x2="8" y2="6" />
+                    <line x1="3" y1="10" x2="21" y2="10" />
+                  </svg>
+                </div>
+              </div>
             </div>
             <button
               onClick={handleGenerate}

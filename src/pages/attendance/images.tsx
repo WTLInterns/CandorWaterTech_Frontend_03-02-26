@@ -10,6 +10,15 @@ interface Agent {
   employeeCode?: number;
 }
 
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8080/api/v1";
+
+function getImageSrc(path?: string) {
+  if (!path) return undefined;
+  if (path.startsWith("http://") || path.startsWith("https://")) return path;
+  return `${API_BASE_URL}${path}`;
+}
+
 interface AttendanceImageDto {
   id: string;
   agentId: string;
@@ -121,12 +130,31 @@ export default function AttendanceImagesPage() {
           <div className="flex flex-col sm:flex-row sm:items-center gap-3">
             <div className="flex flex-col gap-1 w-full sm:w-56">
               <label className="text-xs font-medium text-slate-300">Select Date</label>
-              <input
-                type="date"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-                className="rounded-md border border-slate-700 bg-slate-950 px-3 py-1.5 text-xs outline-none focus:ring-2 focus:ring-indigo-500"
-              />
+              <div className="relative">
+                <input
+                  type="date"
+                  value={date}
+                  onChange={(e) => setDate(e.target.value)}
+                  className="w-full rounded-md border border-slate-700 bg-slate-950 px-3 pr-9 py-1.5 text-xs text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500"
+                />
+                <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    className="h-4 w-4 text-indigo-300"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                    <line x1="16" y1="2" x2="16" y2="6" />
+                    <line x1="8" y1="2" x2="8" y2="6" />
+                    <line x1="3" y1="10" x2="21" y2="10" />
+                  </svg>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -197,7 +225,7 @@ export default function AttendanceImagesPage() {
               <div className="md:w-1/3">
                 {employeeImage.imageUrl ? (
                   <img
-                    src={employeeImage.imageUrl}
+                    src={getImageSrc(employeeImage.imageUrl)}
                     alt={employeeImage.agentName}
                     className="w-full h-56 object-cover rounded-lg border border-slate-800 cursor-pointer"
                     onClick={() => setSelectedImage(employeeImage)}
@@ -248,14 +276,14 @@ export default function AttendanceImagesPage() {
               <span className="text-[11px] text-slate-400">{allImages.length} records</span>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {allImages.map((img) => (
+                  {allImages.map((img) => (
                 <div
                   key={img.id}
                   className="rounded-lg border border-slate-800 bg-slate-950/60 overflow-hidden"
                 >
                   {img.imageUrl ? (
                     <img
-                      src={img.imageUrl}
+                      src={getImageSrc(img.imageUrl)}
                       alt={img.agentName}
                       className="w-full h-40 object-cover cursor-pointer"
                       onClick={() => setSelectedImage(img)}
@@ -313,7 +341,7 @@ export default function AttendanceImagesPage() {
                 <div className="md:col-span-3">
                   {selectedImage.imageUrl ? (
                     <img
-                      src={selectedImage.imageUrl}
+                      src={getImageSrc(selectedImage.imageUrl)}
                       alt={selectedImage.agentName}
                       className="w-full max-h-[420px] object-contain rounded-lg border border-slate-800 bg-slate-950"
                     />
@@ -348,7 +376,7 @@ export default function AttendanceImagesPage() {
                   {selectedImage.imageUrl && (
                     <div className="pt-2 flex flex-wrap gap-2">
                       <a
-                        href={selectedImage.imageUrl}
+                        href={getImageSrc(selectedImage.imageUrl)}
                         target="_blank"
                         rel="noreferrer"
                         className="px-3 py-1.5 rounded-md bg-slate-800 text-[11px] text-slate-100 hover:bg-slate-700"

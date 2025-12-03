@@ -11,6 +11,15 @@ interface Agent {
   employeeCode?: number;
 }
 
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8080/api/v1";
+
+function getImageSrc(path?: string) {
+  if (!path) return undefined;
+  if (path.startsWith("http://") || path.startsWith("https://")) return path;
+  return `${API_BASE_URL}${path}`;
+}
+
 interface PunchRecord {
   id: string;
   agentId: string;
@@ -369,7 +378,7 @@ export default function AttendancePunchPage() {
                               className="inline-flex items-center gap-1 rounded-md border border-slate-700 bg-slate-900 px-2 py-1 text-[11px] text-slate-100 hover:bg-slate-800"
                             >
                               <img
-                                src={r.imageUrl}
+                                src={getImageSrc(r.imageUrl)}
                                 alt="Attendance"
                                 className="h-6 w-6 rounded object-cover"
                               />
@@ -403,7 +412,7 @@ export default function AttendancePunchPage() {
               </div>
               <div className="max-h-[70vh] overflow-auto">
                 <img
-                  src={imageModalUrl}
+                  src={getImageSrc(imageModalUrl)}
                   alt="Attendance full size"
                   className="w-full max-h-[70vh] object-contain rounded-lg border border-slate-800 bg-slate-950"
                 />
