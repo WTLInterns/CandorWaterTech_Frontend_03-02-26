@@ -42,12 +42,16 @@ export default function Layout({ children }: { children: ReactNode }) {
   }
 
   const SidebarContent = (
-    <div className="flex h-full flex-col bg-slate-950 text-slate-100">
-      <div className="flex items-center justify-between px-4 py-4 border-b border-slate-800">
+    <div className="flex h-full flex-col text-neo-textPrimary neo-sidebar-gradient">
+      <div className="flex items-center justify-between px-4 py-4 border-b border-neo-border/70">
         <div className="flex items-center gap-2">
-          <span className="inline-flex h-8 w-8 items-center justify-center rounded-md bg-indigo-600 text-sm font-semibold">
-            CW
-          </span>
+          <div className="inline-flex h-8 w-8 items-center justify-center rounded-md bg-neo-pageBg/40 overflow-hidden border border-neo-border/70">
+            <img
+              src="/CWT%20New%20Logo%201.jpeg"
+              alt="Candor Water Tech logo"
+              className="h-full w-full object-contain"
+            />
+          </div>
           <span className="text-sm font-semibold tracking-tight">Candor Water Tech</span>
         </div>
       </div>
@@ -62,8 +66,8 @@ export default function Layout({ children }: { children: ReactNode }) {
               className={classNames(
                 "flex items-center gap-2 rounded-md px-3 py-2 transition",
                 active
-                  ? "bg-slate-800 text-slate-50"
-                  : "text-slate-300 hover:bg-slate-800 hover:text-slate-50"
+                  ? "bg-neo-cardBg text-neo-textPrimary shadow-sm"
+                  : "text-neo-textSecondary hover:bg-neo-cardBg hover:text-neo-textPrimary"
               )}
               onClick={() => setSidebarOpen(false)}
             >
@@ -81,8 +85,8 @@ export default function Layout({ children }: { children: ReactNode }) {
             className={classNames(
               "flex w-full items-center justify-between rounded-md px-3 py-2 text-left transition",
               router.pathname.startsWith("/attendance")
-                ? "bg-slate-800 text-slate-50"
-                : "text-slate-300 hover:bg-slate-800 hover:text-slate-50"
+                ? "bg-neo-cardBg text-neo-textPrimary shadow-sm"
+                : "text-neo-textSecondary hover:bg-neo-cardBg hover:text-neo-textPrimary"
             )}
           >
             <span className="flex items-center gap-2">
@@ -104,8 +108,8 @@ export default function Layout({ children }: { children: ReactNode }) {
                 className={classNames(
                   "flex items-center gap-2 rounded-md px-3 py-1.5 text-xs transition",
                   router.pathname === "/attendance"
-                    ? "bg-slate-800 text-slate-50"
-                    : "text-slate-300 hover:bg-slate-800 hover:text-slate-50"
+                    ? "bg-neo-cardBg text-neo-textPrimary shadow-sm"
+                    : "text-neo-textSecondary hover:bg-neo-cardBg hover:text-neo-textPrimary"
                 )}
                 onClick={() => setSidebarOpen(false)}
               >
@@ -116,8 +120,8 @@ export default function Layout({ children }: { children: ReactNode }) {
                 className={classNames(
                   "flex items-center gap-2 rounded-md px-3 py-1.5 text-xs transition",
                   router.pathname === "/attendance/images"
-                    ? "bg-slate-800 text-slate-50"
-                    : "text-slate-300 hover:bg-slate-800 hover:text-slate-50"
+                    ? "bg-neo-cardBg text-neo-textPrimary shadow-sm"
+                    : "text-neo-textSecondary hover:bg-neo-cardBg hover:text-neo-textPrimary"
                 )}
                 onClick={() => setSidebarOpen(false)}
               >
@@ -129,7 +133,7 @@ export default function Layout({ children }: { children: ReactNode }) {
       </nav>
       <button
         onClick={handleLogout}
-        className="flex items-center gap-2 px-4 py-3 text-sm text-slate-300 border-t border-slate-800 hover:bg-slate-900 hover:text-slate-50"
+        className="flex items-center gap-2 px-4 py-3 text-sm text-neo-textSecondary border-t border-neo-border/70 hover:bg-neo-cardBg hover:text-neo-textPrimary"
       >
         <LogOut className="h-4 w-4" />
         <span>Logout</span>
@@ -138,8 +142,8 @@ export default function Layout({ children }: { children: ReactNode }) {
   );
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-50 flex">
-      <aside className="hidden md:block w-64 border-r border-slate-800">
+    <div className="min-h-screen bg-neo-pageBg text-neo-textPrimary flex">
+      <aside className="hidden md:block w-64 border-r border-neo-border">
         {SidebarContent}
       </aside>
 
@@ -156,32 +160,32 @@ export default function Layout({ children }: { children: ReactNode }) {
       )}
 
       <div className="flex-1 flex flex-col min-w-0">
-        <header className="flex items-center justify-between border-b border-slate-800 px-4 py-3">
+        <header className="flex items-center justify-between border-b border-neo-border px-4 py-3 bg-neo-headerBg/80 backdrop-blur">
           <div className="flex items-center gap-2">
             <button
-              className="md:hidden inline-flex items-center justify-center rounded-md border border-slate-700 bg-slate-900 px-2 py-1 text-slate-100"
+              className="md:hidden inline-flex items-center justify-center rounded-md border border-neo-border bg-neo-cardBg px-2 py-1 text-neo-textPrimary"
               onClick={() => setSidebarOpen(true)}
             >
               <LayoutDashboard className="h-4 w-4" />
             </button>
-            <h1 className="text-sm font-semibold tracking-tight hidden sm:block">
+            <h1 className="text-sm font-semibold tracking-tight hidden sm:block text-neo-textSecondary">
               {router.pathname === "/dashboard" ? "Dashboard" : "Candor Water Tech"}
             </h1>
           </div>
           <div className="flex items-center gap-3 text-xs">
             <div className="text-right hidden sm:block">
-              <div className="font-medium">{user?.name ?? "Guest"}</div>
-              <div className="text-slate-400 text-[11px]">
+              <div className="font-medium text-neo-textPrimary">{user?.name ?? "Guest"}</div>
+              <div className="text-neo-textSecondary text-[11px]">
                 {user?.email ?? "Not signed in"}
               </div>
             </div>
-            <div className="h-8 w-8 rounded-full bg-gradient-to-br from-indigo-500 to-sky-500 flex items-center justify-center text-[11px] font-semibold">
+            <div className="h-8 w-8 rounded-full bg-gradient-to-br from-neo-primary to-neo-secondary flex items-center justify-center text-[11px] font-semibold">
               {user?.name?.charAt(0).toUpperCase() ?? "F"}
             </div>
           </div>
         </header>
 
-        <main className="flex-1 px-4 py-4 sm:px-6 sm:py-6 lg:px-8 lg:py-8 overflow-y-auto">
+        <main className="flex-1 px-4 py-4 sm:px-6 sm:py-6 lg:px-8 lg:py-8 overflow-y-auto bg-neo-pageBg">
           {children}
         </main>
       </div>

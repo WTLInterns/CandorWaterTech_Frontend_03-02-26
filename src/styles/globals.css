@@ -3,5 +3,13 @@
 @tailwind utilities;
 
 body {
-  @apply bg-slate-50 text-slate-900;
+  @apply bg-neo-pageBg text-neo-textPrimary;
+}
+
+.neo-sidebar-gradient {
+  background: linear-gradient(180deg, #0A0F24 0%, #11182E 100%);
+}
+
+.neo-card {
+  @apply bg-neo-cardBg border border-neo-border shadow-2xl rounded-xl;
 }

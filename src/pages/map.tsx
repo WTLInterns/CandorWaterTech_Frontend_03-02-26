@@ -80,9 +80,26 @@ export default function MapPage() {
     };
   }, []);
 
+  // Always keep only the latest location per agent so the table and map
+  // show a single, up-to-date row/marker per agent.
+  const latestByAgent: Record<string, Location> = {};
+  locations.forEach((loc) => {
+    const key = loc.agentId;
+    if (!key) return;
+    const existing = latestByAgent[key];
+    if (!existing) {
+      latestByAgent[key] = loc;
+      return;
+    }
+    if (new Date(loc.timestamp) > new Date(existing.timestamp)) {
+      latestByAgent[key] = loc;
+    }
+  });
+  const latestLocations = Object.values(latestByAgent);
+
   const visibleLocations = selectedAgentKey
-    ? locations.filter((loc) => loc.agentId === selectedAgentKey)
-    : locations;
+    ? latestLocations.filter((loc) => loc.agentId === selectedAgentKey)
+    : latestLocations;
 
   const filteredAgents = search
     ? agents.filter((a) =>

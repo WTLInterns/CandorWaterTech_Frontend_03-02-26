@@ -29,6 +29,13 @@ interface AttendanceImageDto {
   latitude?: number;
   longitude?: number;
   imageUrl?: string;
+  punchInTime?: string;
+  punchOutTime?: string;
+  address?: string;
+  punchOutLatitude?: number;
+  punchOutLongitude?: number;
+  punchOutImageUrl?: string;
+  punchOutAddress?: string;
 }
 
 export default function AttendanceImagesPage() {
@@ -112,7 +119,7 @@ export default function AttendanceImagesPage() {
 
   return (
     <Layout>
-      <div className="space-y-4">
+      <div className="container mx-auto px-4 py-4 space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
             <h1 className="text-xl sm:text-2xl font-semibold tracking-tight">Check Attendance Images</h1>
@@ -223,18 +230,42 @@ export default function AttendanceImagesPage() {
             <h2 className="text-sm font-semibold text-slate-100">Selected agent image</h2>
             <div className="flex flex-col md:flex-row gap-4">
               <div className="md:w-1/3">
-                {employeeImage.imageUrl ? (
-                  <img
-                    src={getImageSrc(employeeImage.imageUrl)}
-                    alt={employeeImage.agentName}
-                    className="w-full h-56 object-cover rounded-lg border border-slate-800 cursor-pointer"
-                    onClick={() => setSelectedImage(employeeImage)}
-                  />
-                ) : (
-                  <div className="w-full h-56 rounded-lg border border-dashed border-slate-700 flex items-center justify-center text-xs text-slate-500">
-                    No image URL
+                <div className="space-y-3">
+                  <div>
+                    <div className="text-[11px] font-medium text-slate-300 mb-1">
+                      Punch In image
+                    </div>
+                    {employeeImage.imageUrl ? (
+                      <img
+                        src={getImageSrc(employeeImage.imageUrl)}
+                        alt={`${employeeImage.agentName} - In`}
+                        className="w-full h-40 object-cover rounded-lg border border-slate-800 cursor-pointer bg-slate-950"
+                        onClick={() => setSelectedImage(employeeImage)}
+                      />
+                    ) : (
+                      <div className="w-full h-40 flex items-center justify-center text-[11px] text-slate-500 rounded-lg border border-dashed border-slate-700 bg-slate-950">
+                        No in image
+                      </div>
+                    )}
                   </div>
-                )}
+                  <div>
+                    <div className="text-[11px] font-medium text-slate-300 mb-1">
+                      Punch Out image
+                    </div>
+                    {employeeImage.punchOutImageUrl ? (
+                      <img
+                        src={getImageSrc(employeeImage.punchOutImageUrl)}
+                        alt={`${employeeImage.agentName} - Out`}
+                        className="w-full h-40 object-cover rounded-lg border border-slate-800 cursor-pointer bg-slate-950"
+                        onClick={() => setSelectedImage(employeeImage)}
+                      />
+                    ) : (
+                      <div className="w-full h-40 flex items-center justify-center text-[11px] text-slate-500 rounded-lg border border-dashed border-slate-700 bg-slate-950">
+                        No out image
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
               <div className="md:w-2/3 space-y-2 text-xs sm:text-sm">
                 <div className="flex gap-2 items-center">
@@ -245,6 +276,14 @@ export default function AttendanceImagesPage() {
                 <div className="flex gap-2 items-center">
                   <span className="text-slate-400">Date:</span>
                   <span className="text-slate-100">{employeeImage.date}</span>
+                </div>
+                <div className="flex gap-2 items-center">
+                  <span className="text-slate-400">Punch In:</span>
+                  <span className="text-slate-100">{employeeImage.punchInTime ?? "-"}</span>
+                </div>
+                <div className="flex gap-2 items-center">
+                  <span className="text-slate-400">Punch Out:</span>
+                  <span className="text-slate-100">{employeeImage.punchOutTime ?? "-"}</span>
                 </div>
                 <div className="flex gap-2 items-center">
                   <span className="text-slate-400">Status:</span>
@@ -258,9 +297,27 @@ export default function AttendanceImagesPage() {
                     {employeeImage.workType || "FIELD"}
                   </span>
                 </div>
-                <div className="flex gap-2 items-center">
-                  <span className="text-slate-400">Location:</span>
-                  {renderLocation(employeeImage.latitude, employeeImage.longitude)}
+                <div className="flex flex-col gap-1">
+                  <div className="flex gap-2 items-center">
+                    <span className="text-slate-400">Address In:</span>
+                    <span className="text-slate-100 text-xs truncate" title={employeeImage.address || ""}>
+                      {employeeImage.address || "-"}
+                    </span>
+                  </div>
+                  <div className="flex gap-2 items-center">
+                    <span className="text-slate-400">Address Out:</span>
+                    <span className="text-slate-100 text-xs truncate" title={employeeImage.punchOutAddress || ""}>
+                      {employeeImage.punchOutAddress || "-"}
+                    </span>
+                  </div>
+                  <div className="flex gap-2 items-center">
+                    <span className="text-slate-400">Location In:</span>
+                    {renderLocation(employeeImage.latitude, employeeImage.longitude)}
+                  </div>
+                  <div className="flex gap-2 items-center">
+                    <span className="text-slate-400">Location Out:</span>
+                    {renderLocation(employeeImage.punchOutLatitude, employeeImage.punchOutLongitude)}
+                  </div>
                 </div>
               </div>
             </div>
@@ -281,22 +338,38 @@ export default function AttendanceImagesPage() {
                   key={img.id}
                   className="rounded-lg border border-slate-800 bg-slate-950/60 overflow-hidden"
                 >
-                  {img.imageUrl ? (
-                    <img
-                      src={getImageSrc(img.imageUrl)}
-                      alt={img.agentName}
-                      className="w-full h-40 object-cover cursor-pointer"
-                      onClick={() => setSelectedImage(img)}
-                    />
-                  ) : (
-                    <div className="w-full h-40 flex items-center justify-center text-xs text-slate-500 border-b border-slate-800">
-                      No image
-                    </div>
-                  )}
+                  <div className="w-full h-40 flex">
+                    {img.imageUrl ? (
+                      <img
+                        src={getImageSrc(img.imageUrl)}
+                        alt={`${img.agentName} - In`}
+                        className="w-1/2 h-40 object-cover cursor-pointer border-r border-slate-800"
+                        onClick={() => setSelectedImage(img)}
+                      />
+                    ) : (
+                      <div className="w-1/2 h-40 flex items-center justify-center text-xs text-slate-500 border-r border-slate-800">
+                        No in image
+                      </div>
+                    )}
+                    {img.punchOutImageUrl ? (
+                      <img
+                        src={getImageSrc(img.punchOutImageUrl)}
+                        alt={`${img.agentName} - Out`}
+                        className="w-1/2 h-40 object-cover cursor-pointer"
+                        onClick={() => setSelectedImage(img)}
+                      />
+                    ) : (
+                      <div className="w-1/2 h-40 flex items-center justify-center text-xs text-slate-500">
+                        No out image
+                      </div>
+                    )}
+                  </div>
                   <div className="p-3 space-y-1 text-[11px] text-slate-200">
                     <div className="font-medium truncate">{img.agentName}</div>
                     <div className="text-slate-400 truncate">ID: {img.agentId}</div>
                     <div className="text-slate-400">Date: {img.date}</div>
+                    <div className="text-slate-400">In: {img.punchInTime ?? "-"}</div>
+                    <div className="text-slate-400">Out: {img.punchOutTime ?? "-"}</div>
                     <div className="flex items-center gap-1">
                       <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
                       <span>{img.status}</span>
@@ -307,9 +380,23 @@ export default function AttendanceImagesPage() {
                         {img.workType || "FIELD"}
                       </span>
                     </div>
-                    <div className="flex items-center gap-1">
-                      <span className="text-slate-400">Loc:</span>
-                      {renderLocation(img.latitude, img.longitude)}
+                    <div className="flex flex-col gap-0.5">
+                      <div className="flex items-center gap-1">
+                        <span className="text-slate-400">Loc in:</span>
+                        {renderLocation(img.latitude, img.longitude)}
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <span className="text-slate-400">Loc out:</span>
+                        {renderLocation(img.punchOutLatitude, img.punchOutLongitude)}
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <span className="text-slate-400">Addr in:</span>
+                        <span className="truncate" title={img.address || ""}>{img.address || "-"}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <span className="text-slate-400">Addr out:</span>
+                        <span className="truncate" title={img.punchOutAddress || ""}>{img.punchOutAddress || "-"}</span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -338,18 +425,35 @@ export default function AttendanceImagesPage() {
                 </button>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-start">
-                <div className="md:col-span-3">
-                  {selectedImage.imageUrl ? (
-                    <img
-                      src={getImageSrc(selectedImage.imageUrl)}
-                      alt={selectedImage.agentName}
-                      className="w-full max-h-[420px] object-contain rounded-lg border border-slate-800 bg-slate-950"
-                    />
-                  ) : (
-                    <div className="w-full h-64 flex items-center justify-center rounded-lg border border-dashed border-slate-700 text-xs text-slate-500">
-                      No image available
+                <div className="md:col-span-3 flex flex-col gap-2">
+                  <div className="flex gap-2">
+                    <div className="flex-1">
+                      {selectedImage.imageUrl ? (
+                        <img
+                          src={getImageSrc(selectedImage.imageUrl)}
+                          alt={`${selectedImage.agentName} - In`}
+                          className="w-full max-h-[220px] object-contain rounded-lg border border-slate-800 bg-slate-950"
+                        />
+                      ) : (
+                        <div className="w-full h-40 flex items-center justify-center rounded-lg border border-dashed border-slate-700 text-xs text-slate-500">
+                          No in image
+                        </div>
+                      )}
                     </div>
-                  )}
+                    <div className="flex-1">
+                      {selectedImage.punchOutImageUrl ? (
+                        <img
+                          src={getImageSrc(selectedImage.punchOutImageUrl)}
+                          alt={`${selectedImage.agentName} - Out`}
+                          className="w-full max-h-[220px] object-contain rounded-lg border border-slate-800 bg-slate-950"
+                        />
+                      ) : (
+                        <div className="w-full h-40 flex items-center justify-center rounded-lg border border-dashed border-slate-700 text-xs text-slate-500">
+                          No out image
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
                 <div className="md:col-span-2 space-y-2 text-xs text-slate-200">
                   <div>
@@ -362,6 +466,14 @@ export default function AttendanceImagesPage() {
                     <div>{selectedImage.date}</div>
                   </div>
                   <div>
+                    <div className="text-slate-400">Punch In</div>
+                    <div>{selectedImage.punchInTime ?? "-"}</div>
+                  </div>
+                  <div>
+                    <div className="text-slate-400">Punch Out</div>
+                    <div>{selectedImage.punchOutTime ?? "-"}</div>
+                  </div>
+                  <div>
                     <div className="text-slate-400">Status</div>
                     <div>{selectedImage.status}</div>
                   </div>
@@ -370,8 +482,20 @@ export default function AttendanceImagesPage() {
                     <div>{selectedImage.workType || "FIELD"}</div>
                   </div>
                   <div>
-                    <div className="text-slate-400">Location</div>
+                    <div className="text-slate-400">Location In</div>
                     <div>{renderLocation(selectedImage.latitude, selectedImage.longitude)}</div>
+                  </div>
+                  <div>
+                    <div className="text-slate-400">Location Out</div>
+                    <div>{renderLocation(selectedImage.punchOutLatitude, selectedImage.punchOutLongitude)}</div>
+                  </div>
+                  <div>
+                    <div className="text-slate-400">Address In</div>
+                    <div className="text-xs" title={selectedImage.address || ""}>{selectedImage.address || "-"}</div>
+                  </div>
+                  <div>
+                    <div className="text-slate-400">Address Out</div>
+                    <div className="text-xs" title={selectedImage.punchOutAddress || ""}>{selectedImage.punchOutAddress || "-"}</div>
                   </div>
                   {selectedImage.imageUrl && (
                     <div className="pt-2 flex flex-wrap gap-2">

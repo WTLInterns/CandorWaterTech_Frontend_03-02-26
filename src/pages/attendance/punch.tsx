@@ -31,6 +31,9 @@ interface PunchRecord {
   punchOutTime?: string;
   imageUrl?: string;
   reason?: string;
+  address?: string;
+  punchOutImageUrl?: string;
+  punchOutAddress?: string;
 }
 
 function formatMonthLabel(d: Date) {
@@ -164,7 +167,7 @@ export default function AttendancePunchPage() {
 
   return (
     <Layout>
-      <div className="space-y-4">
+      <div className="container mx-auto px-4 py-4 space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
             <h1 className="text-xl sm:text-2xl font-semibold tracking-tight">Attendance Punch</h1>
@@ -335,7 +338,8 @@ export default function AttendancePunchPage() {
                     <th className="px-3 py-2">Punch Out</th>
                     <th className="px-3 py-2">Work Type</th>
                     <th className="px-3 py-2">Reason</th>
-                    <th className="px-3 py-2">Image</th>
+                    <th className="px-3 py-2">Address</th>
+                    <th className="px-3 py-2">Images</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-800">
@@ -370,23 +374,47 @@ export default function AttendancePunchPage() {
                         <td className="px-3 py-2 whitespace-nowrap text-slate-200 max-w-[160px] truncate" title={r.reason || ""}>
                           {r.reason || "-"}
                         </td>
+                        <td className="px-3 py-2 whitespace-nowrap text-slate-200 max-w-[220px] truncate" title={`${r.address || "-"}${r.punchOutAddress ? ` | Out: ${r.punchOutAddress}` : ""}`}>
+                          <div className="flex flex-col gap-0.5">
+                            <span>In: {r.address || "-"}</span>
+                            <span>Out: {r.punchOutAddress || "-"}</span>
+                          </div>
+                        </td>
                         <td className="px-3 py-2 whitespace-nowrap">
-                          {r.imageUrl ? (
-                            <button
-                              type="button"
-                              onClick={() => setImageModalUrl(r.imageUrl!)}
-                              className="inline-flex items-center gap-1 rounded-md border border-slate-700 bg-slate-900 px-2 py-1 text-[11px] text-slate-100 hover:bg-slate-800"
-                            >
-                              <img
-                                src={getImageSrc(r.imageUrl)}
-                                alt="Attendance"
-                                className="h-6 w-6 rounded object-cover"
-                              />
-                              <span>View</span>
-                            </button>
-                          ) : (
-                            <span className="text-[11px] text-slate-500">No image</span>
-                          )}
+                          <div className="flex flex-col gap-1">
+                            {r.imageUrl ? (
+                              <button
+                                type="button"
+                                onClick={() => setImageModalUrl(r.imageUrl!)}
+                                className="inline-flex items-center gap-1 rounded-md border border-slate-700 bg-slate-900 px-2 py-1 text-[11px] text-slate-100 hover:bg-slate-800"
+                              >
+                                <img
+                                  src={getImageSrc(r.imageUrl)}
+                                  alt="Punch in"
+                                  className="h-6 w-6 rounded object-cover"
+                                />
+                                <span>In</span>
+                              </button>
+                            ) : (
+                              <span className="text-[11px] text-slate-500">No in image</span>
+                            )}
+                            {r.punchOutImageUrl ? (
+                              <button
+                                type="button"
+                                onClick={() => setImageModalUrl(r.punchOutImageUrl!)}
+                                className="inline-flex items-center gap-1 rounded-md border border-slate-700 bg-slate-900 px-2 py-1 text-[11px] text-slate-100 hover:bg-slate-800"
+                              >
+                                <img
+                                  src={getImageSrc(r.punchOutImageUrl)}
+                                  alt="Punch out"
+                                  className="h-6 w-6 rounded object-cover"
+                                />
+                                <span>Out</span>
+                              </button>
+                            ) : (
+                              <span className="text-[11px] text-slate-500">No out image</span>
+                            )}
+                          </div>
                         </td>
                       </tr>
                     );
