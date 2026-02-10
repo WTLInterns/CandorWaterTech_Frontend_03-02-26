@@ -5,8 +5,8 @@ import { GoogleMap, MarkerF, InfoWindowF } from "@react-google-maps/api";
 import { useState } from "react";
 
 interface Location {
-  id: string;
-  agentId: string;
+  id: number;
+  agentId: number;
   latitude: number | null;
   longitude: number | null;
   accuracy: number | null;
@@ -15,7 +15,7 @@ interface Location {
 }
 
 interface Agent {
-  id: string;
+  id: number;
   name: string;
   employeeCode: number | null;
 }
@@ -31,7 +31,7 @@ const containerStyle = {
 };
 
 export default function LiveLocationMap({ locations, agents }: Props) {
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [selectedId, setSelectedId] = useState<number | null>(null);
 
   const validLocations = locations.filter(
     (l) => l.latitude !== null && l.longitude !== null,
@@ -53,7 +53,7 @@ export default function LiveLocationMap({ locations, agents }: Props) {
   const selectedAgent =
     selected &&
     agents.find(
-      (a) => String(a.employeeCode ?? a.id) === selected.agentId,
+      (a) => a.id === selected.agentId,
     );
 
   return (
@@ -69,7 +69,7 @@ export default function LiveLocationMap({ locations, agents }: Props) {
     >
       {validLocations.map((loc) => {
         const agent = agents.find(
-          (a) => String(a.employeeCode ?? a.id) === loc.agentId,
+          (a) => a.id === loc.agentId,
         );
         return (
           <MarkerF
@@ -78,7 +78,7 @@ export default function LiveLocationMap({ locations, agents }: Props) {
               lat: loc.latitude as number,
               lng: loc.longitude as number,
             }}
-            label={agent?.name ?? loc.agentId}
+            label={agent?.name ?? String(loc.agentId)}
             onClick={() => setSelectedId(loc.id)}
           />
         );

@@ -7,8 +7,8 @@ import dynamic from "next/dynamic";
 import { useJsApiLoader } from "@react-google-maps/api";
 
 interface Location {
-  id: string;
-  agentId: string;
+  id: number;
+  agentId: number;
   latitude: number | null;
   longitude: number | null;
   accuracy: number | null;
@@ -17,14 +17,14 @@ interface Location {
 }
 
 interface Agent {
-  id: string;
+  id: number;
   name: string;
   employeeCode: number | null;
   email: string;
 }
 
 function getAgentKey(agent: Agent): string {
-  return String(agent.employeeCode ?? agent.id);
+  return String(agent.id);
 }
 
 const LiveLocationMap = dynamic(
@@ -84,7 +84,7 @@ export default function MapPage() {
   // show a single, up-to-date row/marker per agent.
   const latestByAgent: Record<string, Location> = {};
   locations.forEach((loc) => {
-    const key = loc.agentId;
+    const key = String(loc.agentId);
     if (!key) return;
     const existing = latestByAgent[key];
     if (!existing) {
@@ -98,7 +98,7 @@ export default function MapPage() {
   const latestLocations = Object.values(latestByAgent);
 
   const visibleLocations = selectedAgentKey
-    ? latestLocations.filter((loc) => loc.agentId === selectedAgentKey)
+    ? latestLocations.filter((loc) => String(loc.agentId) === selectedAgentKey)
     : latestLocations;
 
   const filteredAgents = search
@@ -206,7 +206,7 @@ export default function MapPage() {
             <tbody className="divide-y divide-slate-800">
               {visibleLocations.map((loc: Location) => {
                 const agent = agents.find(
-                  (a: Agent) => getAgentKey(a) === loc.agentId,
+                  (a: Agent) => getAgentKey(a) === String(loc.agentId),
                 );
                 return (
                   <tr key={loc.id} className="hover:bg-slate-800/60">
