@@ -27,6 +27,9 @@ const navItems = [
   { href: "/reports", label: "Reports", icon: BarChart3 },
   { href: "/settings", label: "Settings", icon: Settings },
   { href: "/map", label: "Live Map", icon: MapIcon },
+  { href: "/live-tracking", label: "Live Tracking", icon: MapIcon },
+  { href: "/agent-route", label: "Agent Route", icon: MapIcon },
+  { href: "/movement-report", label: "Movement Report", icon: BarChart3 },
 ];
 
 export default function Layout({ children }: { children: ReactNode }) {
