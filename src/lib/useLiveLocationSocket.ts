@@ -33,7 +33,7 @@ function ensureClient() {
 
   const wsUrl =
     process.env.NEXT_PUBLIC_WS_URL ??
-    "https://api.candorwatertech.com/api/v1/ws";
+    "http://localhost:8089/api/v1/ws";
 
   const client = new Client({
     webSocketFactory: () => new SockJS(wsUrl),

@@ -28,7 +28,7 @@ const navItems = [
   { href: "/settings", label: "Settings", icon: Settings },
   { href: "/map", label: "Live Map", icon: MapIcon },
   { href: "/live-tracking", label: "Live Tracking", icon: MapIcon },
-  { href: "/agent-route", label: "Agent Route", icon: MapIcon },
+  // { href: "/agent-route", label: "Agent Route", icon: MapIcon },
   { href: "/movement-report", label: "Movement Report", icon: BarChart3 },
 ];
 

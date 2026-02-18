@@ -7,7 +7,7 @@ function buildFileUrl(path?: string | null) {
   if (!path) return null;
   if (path.startsWith("http://") || path.startsWith("https://")) return path;
   const apiBase =
-    process.env.NEXT_PUBLIC_API_BASE_URL || "https://api.candorwatertech.com/api/v1";
+    process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8089/api/v1";
   return `${apiBase}${path}`;
 }
 
@@ -81,7 +81,7 @@ export default function InvoiceDetailPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || "https://api.candorwatertech.com/api/v1";
+  const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8089/api/v1";
 
   useEffect(() => {
     if (!id) return;

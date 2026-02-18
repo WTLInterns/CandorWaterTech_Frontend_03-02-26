@@ -113,6 +113,61 @@ export default function LiveTrackingPage() {
 
   const socketState = useLiveLocationSocket(handleLocation);
 
+  const updateMarkerInstant = useCallback(
+    (agentId: number, lat: number, lng: number) => {
+      if (!mapRef.current) return;
+
+      const pos: google.maps.LatLngLiteral = { lat, lng };
+      const label = agentNameById.get(agentId) ?? String(agentId);
+
+      const existing = markersRef.current.get(agentId);
+      if (!existing) {
+        const marker = new google.maps.Marker({
+          map: mapRef.current,
+          position: pos,
+          title: label,
+          label,
+        });
+        markersRef.current.set(agentId, {
+          marker,
+          lastTimestamp: undefined,
+        });
+      } else {
+        existing.marker.setPosition(pos);
+        existing.marker.setTitle(label);
+        existing.marker.setLabel(label);
+      }
+
+      mapRef.current.panTo(pos);
+    },
+    [agentNameById]
+  );
+
+  const loadLastLocation = useCallback(
+    async (agentId: number) => {
+      if (!mapRef.current) return;
+      try {
+        const res = await api.get<{
+          latitude: number | null;
+          longitude: number | null;
+        }>("/location/last", {
+          params: { agentId },
+        });
+
+        const data = res.data;
+        if (!data || data.latitude == null || data.longitude == null) {
+          return;
+        }
+
+        updateMarkerInstant(agentId, data.latitude, data.longitude);
+      } catch (e) {
+        // Swallow errors for UX; live WS updates will still move markers
+        // console.error("Failed to load last location", e);
+      }
+    },
+    [updateMarkerInstant]
+  );
+
   useEffect(() => {
     // When filter changes, hide/show markers without rerendering the map.
     for (const [agentId, rec] of markersRef.current.entries()) {
@@ -120,6 +175,12 @@ export default function LiveTrackingPage() {
       rec.marker.setVisible(visible);
     }
   }, [selectedAgentId]);
+
+  useEffect(() => {
+    if (!mapRef.current) return;
+    if (selectedAgentId === "all") return;
+    loadLastLocation(Number(selectedAgentId));
+  }, [selectedAgentId, loadLastLocation]);
 
   return (
     <Layout>
@@ -134,14 +195,14 @@ export default function LiveTrackingPage() {
           </div>
 
           <div className="w-full sm:w-72">
-            <label className="block text-xs text-slate-500 mb-1">Agent</label>
+            <label className="block text-xs font-medium text-black mb-1">Agent</label>
             <select
               value={String(selectedAgentId)}
               onChange={(e) => {
                 const v = e.target.value;
                 setSelectedAgentId(v === "all" ? "all" : Number(v));
               }}
-              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
+              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-black placeholder-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
             >
               <option value="all">All agents</option>
               {agents.map((a) => (

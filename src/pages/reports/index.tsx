@@ -36,7 +36,7 @@ interface OrdersRow {
 }
 
 const SPRING_API_BASE =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "https://api.candorwatertech.com/api/v1";
+  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8089/api/v1";
 
 export default function ReportsPage() {
   const [reportType, setReportType] = useState<ReportType>("SALES");

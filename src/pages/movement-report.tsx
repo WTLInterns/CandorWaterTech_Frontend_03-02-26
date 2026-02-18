@@ -69,11 +69,11 @@ export default function MovementReportPage() {
         <div className="rounded-lg border border-slate-200 bg-white p-4">
           <div className="grid grid-cols-1 gap-3 md:grid-cols-3 md:items-end">
             <div>
-              <label className="block text-xs text-slate-500 mb-1">Agent</label>
+              <label className="block text-xs font-medium text-black mb-1">Agent</label>
               <select
                 value={agentId}
                 onChange={(e) => setAgentId(e.target.value)}
-                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
+                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-black placeholder-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
               >
                 {agents.map((a) => (
                   <option key={a.id} value={a.id}>
@@ -81,16 +81,16 @@ export default function MovementReportPage() {
                   </option>
                 ))}
               </select>
-              <p className="mt-1 text-[11px] text-slate-500">Selected: {agentLabel}</p>
+              <p className="mt-1 text-sm text-black">Selected: {agentLabel}</p>
             </div>
 
             <div>
-              <label className="block text-xs text-slate-500 mb-1">Date</label>
+              <label className="block text-xs font-medium text-black mb-1">Date</label>
               <input
                 type="date"
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
-                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
+                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-black placeholder-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
               />
             </div>
 
@@ -114,11 +114,11 @@ export default function MovementReportPage() {
             </div>
           </div>
 
-          <div className="mt-3 text-xs text-slate-500">
+          {/* <div className="mt-3 text-xs text-slate-500">
             Downloads from:
             <div className="font-mono">GET /api/v1/reports/location/pdf</div>
             <div className="font-mono">GET /api/v1/reports/location/excel</div>
-          </div>
+          </div> */}
         </div>
       </div>
     </Layout>

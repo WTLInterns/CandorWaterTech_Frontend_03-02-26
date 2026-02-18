@@ -8,10 +8,10 @@ function buildFileUrl(path?: string | null) {
   if (!path) return null;
   if (path.startsWith("http://") || path.startsWith("https://")) return path;
   const apiBase =
-    process.env.NEXT_PUBLIC_API_BASE_URL || "https://api.candorwatertech.com/api/v1";
+    process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8089/api/v1";
   // Backend runs under context-path /api/v1, and invoicePdfUrl is a relative
   // path like /uploads/invoices/xxx.pdf, so the actual URL must be
-  // https://api.candorwatertech.com/api/v1/uploads/...
+  // http://localhost:8089/api/v1/uploads/...
   return `${apiBase}${path}`;
 }
 
@@ -41,7 +41,7 @@ export default function InvoicesPage() {
   const [search, setSearch] = useState("");
 
   const apiBase =
-    process.env.NEXT_PUBLIC_API_BASE_URL || "https://api.candorwatertech.com/api/v1";
+    process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8089/api/v1";
 
   async function loadInvoices() {
     setLoading(true);
