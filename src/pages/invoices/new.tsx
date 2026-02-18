@@ -63,7 +63,7 @@ export default function NewInvoicePage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8089/api/v1";
+  const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || "https://api.candorwatertech.com/api/v1";
 
   useEffect(() => {
     const fetchProducts = async () => {

@@ -205,7 +205,7 @@ export default function ProductsPage() {
                           // eslint-disable-next-line @next/next/no-img-element
                           <img
                             src={`${
-                              process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8089/api/v1"
+                              process.env.NEXT_PUBLIC_API_BASE_URL ?? "https://api.candorwatertech.com/api/v1"
                             }${product.imageUrl}`}
                             alt={product.name}
                             className="h-9 w-9 rounded object-cover border border-slate-700 bg-slate-800"
@@ -301,7 +301,7 @@ export default function ProductsPage() {
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={`${
-                        process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8089/api/v1"
+                        process.env.NEXT_PUBLIC_API_BASE_URL ?? "https://api.candorwatertech.com/api/v1"
                       }${editingProduct.imageUrl}`}
                       alt={editingProduct.name}
                       className="h-10 w-10 rounded object-cover border border-slate-700 bg-slate-800"
