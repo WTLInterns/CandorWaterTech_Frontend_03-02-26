@@ -659,7 +659,15 @@ export default function AttendancePage() {
                   <p className="text-[11px] text-slate-400">Loading attendance...</p>
                 )}
 
-                <CalendarGrid activeDate={monthDate} viewEntries={viewMap} />
+                <CalendarGrid 
+                  activeDate={monthDate} 
+                  viewEntries={viewMap} 
+                  onMonthChange={(delta) => {
+                    setMonthDate((prev) =>
+                      new Date(prev.getFullYear(), prev.getMonth() + delta, 1)
+                    );
+                  }}
+                />
               </div>
             )}
           </div>
@@ -755,7 +763,15 @@ export default function AttendancePage() {
             </div>
             <div className="grid gap-4 md:grid-cols-[1.4fr,2fr]">
               <div>
-                <CalendarGrid activeDate={monthDate} viewEntries={viewMap} />
+                <CalendarGrid 
+                  activeDate={monthDate} 
+                  viewEntries={viewMap} 
+                  onMonthChange={(delta) => {
+                    setMonthDate((prev) =>
+                      new Date(prev.getFullYear(), prev.getMonth() + delta, 1)
+                    );
+                  }}
+                />
               </div>
               <div className="rounded-xl border border-slate-800 bg-slate-950/70 overflow-hidden">
                 <div className="flex items-center justify-between px-3 py-2 border-b border-slate-800">
