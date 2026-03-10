@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-     "start": "next start -p 3050",
+    "start": "next start -p 3050",
     "lint": "next lint"
   },
   "dependencies": {
@@ -17,7 +17,7 @@
     "classnames": "2.5.1",
     "framer-motion": "^12.23.24",
     "html2canvas": "^1.4.1",
-    "jspdf": "4.1.0",
+    "jspdf": "^4.2.0",
     "jsqr": "^1.4.0",
     "leaflet": "^1.9.4",
     "lucide-react": "^0.554.0",
