@@ -189,3 +189,7 @@
 //     </Layout>
 //   );
 // }
+
+export default function AgentRoutePage() {
+  return <div />;
+}
